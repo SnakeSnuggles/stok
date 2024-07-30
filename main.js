@@ -1,7 +1,7 @@
 var bar_count = 0
 var money = 500
 var stocks_owned = {}
-
+var marker_count = {}
 function getRandomArbitrary(min, max) {
     return Math.random() * (max - min) + min;
 }
@@ -47,6 +47,7 @@ function create_bar()
     var sellbut = document.getElementById(`sell${bar_count}`)
 
     stocks_owned[bar_count] = {}
+    marker_count[bar_count] = 0
     var thestring = buybut.id;
     var id = thestring.replace(/\D/g, '');
     buybut.onclick = function()
@@ -81,44 +82,34 @@ function buy(id)
     let currentLeftValue = parseInt(currentLeft, 10);
 
     let newLeftValue = currentLeftValue + 36;
+    marker_count[id] ++;
+    var total = marker_count[id]
+    var worth = newLeftValue/widperc;
+    stocks_owned[id][total] = worth;
 
-    var total = Object.keys(stocks_owned[id]).length;
-    var worth = newLeftValue/widperc
-    stocks_owned[id][total] = worth
 
-
-    var buy_marker = document.createElement("div")
+    var buy_marker = document.createElement("div");
     buy_marker.id = `buy_marker${id} ${total}`;
-    buy_marker.classList.add("buy")
+    buy_marker.classList.add("buy");
     let bestLeftValue = newLeftValue + "px";
     buy_marker.style.left = bestLeftValue;
     buy_marker.style.top = ((45.5 + 20) * id) - 5 + "px";   
     bar_area.prepend(buy_marker);
-
-}
-function sell(id)
-{
-    if (stocks_owned[id].length > 0)
-        var to_remove = stocks_owned[id].indexOf(Math.min(...stocks_owned[id]));
-    else
-        return;
-
-    stocks_owned[id].splice(to_remove,1);
-
-    document.getElementById(`buy_marker${id} ${to_remove}`).remove();
-
-    var bar_area = document.getElementById(`bar_area${id}`);
-
-    var markers = bar_area.querySelectorAll("div.buy");
-
-    stocks_owned[id].sort(function(a, b){return a-b});
-
-    markers.forEach((div, index)=>
-    {
-        div.id = `buy_marker${id} ${index}`
-    });
     
 }
+
+
+function sell(id) {
+    var keys = Object.keys(stocks_owned[id]);
+    var to_remove_value = Math.min.apply(null, keys.map(function(key) { return stocks_owned[id][key]; }));
+    const getKeyByValue = (object, value) => {
+      return Object.keys(object).find(key => object[key] === value);
+    };
+    var to_remove_key = getKeyByValue(stocks_owned[id], to_remove_value);
+  
+    delete stocks_owned[id][to_remove_key];
+    document.getElementById(`buy_marker${id} ${to_remove_key}`).remove();
+  }
 
 function main_loop()
 {
