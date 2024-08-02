@@ -2,7 +2,7 @@
     border:1px black solid;
     width: 60vw;
     height: 20px;
-    margin-left: 10px;
+    margin-left: 15px;
 }
 .marker
 {
@@ -20,6 +20,10 @@ img
     height: 20px;
     width: 20px;
     margin: 0;
+}
+.button {
+    margin-left: 2px;
+    margin-right: 2px;
 }
 .bar_area
 {

@@ -1,7 +1,9 @@
+
 var bar_count = 0
 var money = 500
 var stocks_owned = {}
 var marker_count = {}
+var price = {}
 function getRandomArbitrary(min, max) {
     return Math.random() * (max - min) + min;
 }
@@ -19,6 +21,15 @@ function move(percent,bar_id) {
     const widperc = width / 100;
     
     marker.style.left = (percent * widperc) + "px"; 
+}
+
+function set_price()
+{
+    var min = getRandomArbitrary(0,500);
+    var max = getRandomArbitrary(501,1000);
+
+    return [min,max]
+
 }
 
 function create_bar()
@@ -46,8 +57,9 @@ function create_bar()
     var buybut = document.getElementById(`buy${bar_count}`)
     var sellbut = document.getElementById(`sell${bar_count}`)
 
-    stocks_owned[bar_count] = {}
-    marker_count[bar_count] = 0
+    stocks_owned[bar_count] = {};
+    marker_count[bar_count] = 0; 
+    price[bar_count] = set_price()
     var thestring = buybut.id;
     var id = thestring.replace(/\D/g, '');
     buybut.onclick = function()
@@ -67,7 +79,7 @@ function buy(id)
 
     /*
     2 parts 
-    
+  
     1. adding the marker in the correct possition (D)
     2. adding the correct price to the list for the stock bar
     */
@@ -95,9 +107,7 @@ function buy(id)
     buy_marker.style.left = bestLeftValue;
     buy_marker.style.top = ((45.5 + 20) * id) - 5 + "px";   
     bar_area.prepend(buy_marker);
-    
 }
-
 
 function sell(id) {
     var keys = Object.keys(stocks_owned[id]);
@@ -106,9 +116,11 @@ function sell(id) {
       return Object.keys(object).find(key => object[key] === value);
     };
     var to_remove_key = getKeyByValue(stocks_owned[id], to_remove_value);
-  
+    
+    
     delete stocks_owned[id][to_remove_key];
     document.getElementById(`buy_marker${id} ${to_remove_key}`).remove();
+
   }
 
 function main_loop()
@@ -117,7 +129,8 @@ function main_loop()
     {
         move(getRandomInt(0,99),i)
     }
-
+    const money_f = document.getElementById("money")
+    money_f.innerHTML = `$ ${money}`
     setTimeout(main_loop,1000);
 }
 create_bar();
