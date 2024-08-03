@@ -70,11 +70,11 @@ function create_bar()
         </div>
     </div>
     `;
-    body.appendChild(new_div);
+    body.prepend(new_div);
 
     var buybut = document.getElementById(`buy${bar_count}`)
     var sellbut = document.getElementById(`sell${bar_count}`)
-
+    scheduleRandomExecution(bar_count,500,2000);
     stocks_owned[bar_count] = {};
     marker_count[bar_count] = 0; 
     price[bar_count] = set_price()
@@ -139,17 +139,40 @@ function sell(id) {
     document.getElementById(`buy_marker${id} ${to_remove_key}`).remove();
 
   }
+  function scheduleRandomExecution(i,minInterval, maxInterval) {
+    const randomInterval = Math.floor(Math.random() * (maxInterval - minInterval + 1)) + minInterval;
+    setTimeout(() => {
+        move(getRandomInt(0,99),i);
+        scheduleRandomExecution(i,minInterval, maxInterval);
+    }, randomInterval);
+}
+
+function toggle_menu(div)
+{
+    var upgrade_div = document.getElementById("Upgrade_cont");
+    var leader_div = document.getElementById("Leader_cont");
+
+    if(div === "Upgrade_cont")
+    {
+        upgrade_div.style.display = "block";
+        leader_div.style.display = "none";
+    }
+    else if(div === "Leader_cont")
+    {
+        leader_div.style.display = "block";
+        upgrade_div.style.display = "none";
+    }
+}
+
 
 function main_loop()
 {
-    for(i=1;i<=bar_count;i++)
-    {
-        move(getRandomInt(0,99),i)
-    }
+
     const money_f = document.getElementById("money")
     money_f.innerHTML = `$ ${money}`
-    setTimeout(main_loop,1000);
+    setTimeout(main_loop,1);
 }
+
 create_bar();
 main_loop();
 

@@ -8,22 +8,35 @@
 </head>
 <body>
     <p id="money"></p>
-    <div style="display: flex;">
-        <div id="body"></div>
-        <div>
-            Order to do things: <br>
-            1. Earn money <br> 
-            2. price move goodly<br> 
-            3. Power ups<br> 
-            4. make the power up menu <br> 
-            5. Make usernames<br> 
-            6. Make leader board<br> 
-            7. Put on website<br> 
+        <div style="display: flex;">
+            <div id="body">
+                <button id="new_bar" class="new_bar">buy bar</button>
+            </div>
+            <div class="side_menu_border">
+                <div style="display: flex;flex-direction: column;margin: 0;">
+                    <div class="scroll">
+                        <div class="content_div show" style="display: block;" id="Upgrade_cont">Upgrades
+                        </div>
+                        <div class="content_div show" id="Leader_cont">Leaderboard</div>
+                    </div> 
+                </div>
+                <div class="side_menu">
+                    <button onclick="toggle_menu('Upgrade_cont')">Upgrades</button>
+                    <button onclick="toggle_menu('Leader_cont')" id="last">Leader board</button>
+                </div>
+            </div>
         </div>
-    </div>
-
-
-    <button id="new_bar" class="new_bar">buy bar</button>
+        
+    <div>
+        Order to do things: <br>
+        1. Earn money <br> 
+        2. price move goodly<br> 
+        3. make the power up menu <br> 
+        4. Power ups<br> 
+        5. Make usernames<br> 
+        6. Make leader board<br> 
+        7. Put on website<br> 
+    <div>
     <script src="main.js"></script>
 </body>
 </html>
