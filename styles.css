@@ -4,6 +4,10 @@
     height: 20px;
     margin-left: 15px;
 }
+.huerotate 
+{ 
+    filter: hue-rotate(135deg); 
+}
 .marker
 {
     position: relative;
@@ -33,23 +37,20 @@ img
 {
     width: 100%;
     height: 50vh;
-    padding-bottom: 20px;
     border: black solid 1px;
     margin-top: 40px;
-    margin-right: 100px;
+    margin-right: 20px;
     justify-content: center;
 
 }
 .side_menu
 {
     display: flex;
-    height: 100%;
 }
 .side_menu button
 {
     margin-left: 20px;
     margin-bottom: 20px;
-    margin-top: auto;
     width: 100%;
     height: 60px;
     font-size: 20px;
@@ -60,8 +61,8 @@ img
 }
 .show
 {
-    height: 20px;
     margin-left: 5px;
+    height: 100%;
 }
 .scroll
 {
@@ -80,7 +81,7 @@ img
     margin: 0;
     position: absolute;
     top: 56px;
-    background-color: lightblue; /* Optional: adds a background color for better visibility */
+    background-color: lightblue /* Optional: adds a background color for better visibility */
 }
 .new_bar
 {

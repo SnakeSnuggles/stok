@@ -59,7 +59,7 @@ function create_bar()
     new_div.innerHTML = 
     `
         <div id="bar_area${bar_count}" class="bar_area">
-        <img id="marker${bar_count}" class="marker" src="maps-and-flags.png">
+        <img id="marker${bar_count}" class="marker" src="assets/marker.png">
         <div class="samel">
             <div style="width: 100%;" class="samel containers">
                 <div id="bar${bar_count}" class="bar"></div>
@@ -70,7 +70,7 @@ function create_bar()
         </div>
     </div>
     `;
-    body.prepend(new_div);
+    body.appendChild(new_div);
 
     var buybut = document.getElementById(`buy${bar_count}`)
     var sellbut = document.getElementById(`sell${bar_count}`)
@@ -80,6 +80,7 @@ function create_bar()
     price[bar_count] = set_price()
     var thestring = buybut.id;
     var id = thestring.replace(/\D/g, '');
+    move(50,Number(id))
     buybut.onclick = function()
     {
         buy(Number(id));
@@ -105,7 +106,8 @@ function buy(id)
     var bar_area = document.getElementById(`bar_area${id}`)
     const rect = bar.getBoundingClientRect();
     const width = rect.width;
-    const widperc = width/100
+    const widperc = width/100;
+    const height = document.getElementById(`bar_area${id}`).getBoundingClientRect().height;
     let currentLeft = marker.style.left;
 
     let currentLeftValue = parseInt(currentLeft, 10);
@@ -122,9 +124,43 @@ function buy(id)
     buy_marker.classList.add("buy");
     let bestLeftValue = newLeftValue + "px";
     buy_marker.style.left = bestLeftValue;
-    buy_marker.style.top = ((45.5 + 30) * id) + "px";   
+    buy_marker.style.top = ((height + 20) * id) + 10 + "px";
     bar_area.prepend(buy_marker);
 }
+
+const clamp = (val, min = 0, max = 1) => Math.max(min, Math.min(max, val));
+function stock_algor(vol,bar_id)
+{
+    var output;
+
+    var move_by = getRandomInt(1,vol);
+
+    var S = get_marker_percent(bar_id);
+    var chance_up = 100-S;
+    var choice = getRandomInt(1,100);
+
+    if(chance_up > choice)
+    {
+        output = S+move_by;
+    }
+    else
+    {
+        output = S-move_by;
+    }
+
+    output = clamp(output,1,100);
+
+    return output
+}
+function scheduleRandomExecution(i,minInterval, maxInterval) {
+    const randomInterval = Math.floor(Math.random() * (maxInterval - minInterval + 1)) + minInterval;
+    setTimeout(() => {
+        const vol = getRandomInt(1,10)
+        move(stock_algor(vol,i),i);
+        scheduleRandomExecution(i,minInterval, maxInterval);
+    }, randomInterval);
+}
+
 
 function sell(id) {
     var keys = Object.keys(stocks_owned[id]);
@@ -139,13 +175,7 @@ function sell(id) {
     document.getElementById(`buy_marker${id} ${to_remove_key}`).remove();
 
   }
-  function scheduleRandomExecution(i,minInterval, maxInterval) {
-    const randomInterval = Math.floor(Math.random() * (maxInterval - minInterval + 1)) + minInterval;
-    setTimeout(() => {
-        move(getRandomInt(0,99),i);
-        scheduleRandomExecution(i,minInterval, maxInterval);
-    }, randomInterval);
-}
+
 
 function toggle_menu(div)
 {
