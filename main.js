@@ -197,12 +197,18 @@ function toggle_menu(div)
 
 document.body.onmousedown = function() { 
     mouseDown = true;
-  };
-  document.body.onmouseup = function() {
+};
+
+document.body.onmouseup = function() {
     mouseDown = false;
-  };
+    activeImage = null;  // Reset the active image when the mouse is released
+};
+
 document.addEventListener("mousemove", function(event) {
-    coords = [event.clientX, event.clientY];
+    if (mouseDown && activeImage) {
+        var deltaX = event.clientX - activeImage.initialMouseX;
+        activeImage.img.style.left = (activeImage.initialElementX + deltaX) + "px";
+    }
 });
 
 // Add auto-buy functionality
@@ -226,24 +232,13 @@ function add_auto_buy() {
 
     bar.prepend(img);
 
-    var initialMouseX;
-    var initialElementX;
-
     img.addEventListener("mousedown", function(event) {
-        initialMouseX = event.clientX;
-        initialElementX = parseInt(img.style.left || 0);
+        activeImage = {
+            img: img,
+            initialMouseX: event.clientX,
+            initialElementX: parseInt(img.style.left || 0)
+        };
         mouseDown = true;
-    });
-
-    img.addEventListener("mouseup", function() {
-        mouseDown = false;
-    });
-
-    img.addEventListener("mousemove", function(event) {
-        if (mouseDown) {
-            var deltaX = event.clientX - initialMouseX;
-            img.style.left = (initialElementX + deltaX) + "px";
-        }
     });
 }
 
