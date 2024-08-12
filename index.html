@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="styles.css">
     <title>Stok</title>
 </head>
-<body>
+<body onmousemove="get_coords(event)">
     <p id="money"></p>
         <div style="display: flex;">
             <div>
@@ -16,7 +16,21 @@
             <div class="side_menu_border">
                 <div style="display: flex;flex-direction: column;margin: 0;height: 100%">
                     <div class="scroll">
-                        <div class="content_div show" style="display: block;" id="Upgrade_cont">Upgrades</div>
+                        <div class="content_div show" style="display: block;" id="Upgrade_cont">
+                            <MyHeader1>Upgrades</MyHeader1>
+                            <div style="display: flex;">
+                                <div id="">
+                                    <img src="assets/coloured_marker.png" class=" upgrade_icon no_drag" ondragstart="return false;" alt="">
+                                </div>
+                                
+                                <div style="width: 100%;display: flex;">
+                                    <h2>Auto buy upgrade</h2>
+                                    <button onclick="add_auto_buy()" class="upgrade_buy_button">Buy</button>
+                                </div>
+                            </div>
+
+
+                        </div>
                         <div class="content_div show" id="Leader_cont">Leaderboard</div>
                     </div>
                     <div class="side_menu">

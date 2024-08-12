@@ -8,6 +8,28 @@
 { 
     filter: hue-rotate(135deg); 
 }
+.no_drag
+{
+    -webkit-user-drag: none;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+   
+}
+.upgrade_icon
+{
+    height: 50px;
+    width: 50px;
+    margin-top: 15px;
+    margin-right: 50px;
+}
+.upgrade_buy_button
+{
+    width: 40px;
+    height: 25px;
+    margin: auto;
+}
 .marker
 {
     position: relative;
@@ -28,6 +50,12 @@ img
 .button {
     margin-left: 2px;
     margin-right: 2px;
+}
+MyHeader1
+{
+    font-size: 30px;
+    margin: 0;
+    font-weight: bold;
 }
 .bar_area
 {

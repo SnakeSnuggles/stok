@@ -2,6 +2,7 @@ var bar_count = 0
 var money = 500
 var stocks_owned = {}
 var marker_count = {}
+var auto_buy_count = 0;
 var price = {}
 function getRandomArbitrary(min, max) {
     return Math.random() * (max - min) + min;
@@ -59,7 +60,7 @@ function create_bar()
     new_div.innerHTML = 
     `
         <div id="bar_area${bar_count}" class="bar_area">
-        <img id="marker${bar_count}" class="marker" src="assets/marker.png">
+        <img id="marker${bar_count}" class="marker" ondragstart="return false;" src="assets/marker.png">
         <div class="samel">
             <div style="width: 100%;" class="samel containers">
                 <div id="bar${bar_count}" class="bar"></div>
@@ -194,13 +195,66 @@ function toggle_menu(div)
     }
 }
 
+document.body.onmousedown = function() { 
+    mouseDown = true;
+  };
+  document.body.onmouseup = function() {
+    mouseDown = false;
+  };
+document.addEventListener("mousemove", function(event) {
+    coords = [event.clientX, event.clientY];
+});
+
+// Add auto-buy functionality
+function add_auto_buy() {
+    auto_buy_count++;
+
+    if (auto_buy_count > bar_count) {
+        auto_buy_count--;
+        return;
+    }
+
+    const bar = document.getElementById(`bar_area${auto_buy_count}`);
+
+    var img = document.createElement("img");
+    img.src = "assets/coloured_marker.png";
+    img.classList = "marker huerotate";
+    img.id = `buy_marker${auto_buy_count}`;
+    img.style.position = "absolute"; // Ensure the image is positioned relative to the parent
+    img.style.left = "0px"; // Initialize position
+    img.ondragstart = function () { return false; };
+
+    bar.prepend(img);
+
+    var initialMouseX;
+    var initialElementX;
+
+    img.addEventListener("mousedown", function(event) {
+        initialMouseX = event.clientX;
+        initialElementX = parseInt(img.style.left || 0);
+        mouseDown = true;
+    });
+
+    img.addEventListener("mouseup", function() {
+        mouseDown = false;
+    });
+
+    img.addEventListener("mousemove", function(event) {
+        if (mouseDown) {
+            var deltaX = event.clientX - initialMouseX;
+            img.style.left = (initialElementX + deltaX) + "px";
+        }
+    });
+}
+
 
 function main_loop()
 {
 
-    const money_f = document.getElementById("money")
-    money_f.innerHTML = `$ ${money}`
+    const money_f = document.getElementById("money");
+    money_f.innerHTML = `$ ${money}`;
     setTimeout(main_loop,1);
+
 }
 
 create_bar();
