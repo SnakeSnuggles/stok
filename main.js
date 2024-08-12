@@ -221,7 +221,7 @@ function add_auto_buy() {
     img.classList = "marker huerotate";
     img.id = `buy_marker${auto_buy_count}`;
     img.style.position = "absolute"; // Ensure the image is positioned relative to the parent
-    img.style.left = "0px"; // Initialize position
+    img.style.left = "35px"; // Initialize position
     img.ondragstart = function () { return false; };
 
     bar.prepend(img);
