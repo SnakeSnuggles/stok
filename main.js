@@ -3,6 +3,7 @@ var money = 500
 var stocks_owned = {}
 var marker_count = {}
 var auto_buy_count = 0;
+var auto_sell_count = 0;
 var price = {}
 function getRandomArbitrary(min, max) {
     return Math.random() * (max - min) + min;
@@ -101,7 +102,7 @@ function buy(id)
   
     1. adding the marker in the correct possition (D)
     2. adding the correct price to the list for the stock bar
-    */
+    */    
     var bar = document.getElementById(`bar${id}`);
     var marker = document.getElementById(`marker${id}`);
     var bar_area = document.getElementById(`bar_area${id}`)
@@ -118,8 +119,12 @@ function buy(id)
     var total = marker_count[id]
     var worth = newLeftValue/widperc;
     stocks_owned[id][total] = worth;
-
+    var org_money = money;
     money -= (price[id][1] * (get_marker_percent(id) / 100)) + price[id][0];
+    if(money<0)
+    {
+        money=org_money;
+    }
     var buy_marker = document.createElement("div");
     buy_marker.id = `buy_marker${id} ${total}`;
     buy_marker.classList.add("buy");
@@ -170,10 +175,13 @@ function sell(id) {
       return Object.keys(object).find(key => object[key] === value);
     };
     var to_remove_key = getKeyByValue(stocks_owned[id], to_remove_value);
+    var to_remove = document.getElementById(`buy_marker${id} ${to_remove_key}`)
+
+    if(!to_remove) return;
     
+    to_remove.remove();
     money += (price[id][1] * (get_marker_percent(id) / 100)) + price[id][0];
     delete stocks_owned[id][to_remove_key];
-    document.getElementById(`buy_marker${id} ${to_remove_key}`).remove();
 
   }
 
@@ -228,6 +236,37 @@ function add_auto_buy() {
     img.id = `buy_marker${auto_buy_count}`;
     img.style.position = "absolute"; // Ensure the image is positioned relative to the parent
     img.style.left = "35px"; // Initialize position
+    img.ondragstart = function () { return false; };
+
+    bar.prepend(img);
+
+    img.addEventListener("mousedown", function(event) {
+        activeImage = {
+            img: img,
+            initialMouseX: event.clientX,
+            initialElementX: parseInt(img.style.left || 0)
+        };
+        mouseDown = true;
+    });
+}
+function add_auto_sell() {
+    auto_sell_count++;
+
+    if (auto_sell_count > bar_count) {
+        auto_sell_count--;
+        return;
+    }
+
+    const bar = document.getElementById(`bar_area${auto_sell_count}`);
+
+    const bar_bar = document.getElementById(`bar${auto_sell_count}`);
+
+    var img = document.createElement("img");
+    img.src = "assets/coloured_marker.png";
+    img.classList = "marker red_to_green";
+    img.id = `sell_marker${auto_sell_count}`;
+    img.style.position = "absolute"; // Ensure the image is positioned relative to the parent
+    img.style.left = bar_bar.clientWidth + bar_bar.clientLeft + "px"; // Initialize position
     img.ondragstart = function () { return false; };
 
     bar.prepend(img);
