@@ -4,6 +4,8 @@ var stocks_owned = {}
 var marker_count = {}
 var auto_buy_count = 0;
 var auto_sell_count = 0;
+var max_auto_buy = 1
+var bought_by_auto = []
 var price = {}
 function getRandomArbitrary(min, max) {
     return Math.random() * (max - min) + min;
@@ -94,45 +96,7 @@ function create_bar()
     
 }
 
-function buy(id)
-{
 
-    /*
-    2 parts 
-  
-    1. adding the marker in the correct possition (D)
-    2. adding the correct price to the list for the stock bar
-    */    
-    var bar = document.getElementById(`bar${id}`);
-    var marker = document.getElementById(`marker${id}`);
-    var bar_area = document.getElementById(`bar_area${id}`)
-    const rect = bar.getBoundingClientRect();
-    const width = rect.width;
-    const widperc = width/100;
-    const height = document.getElementById(`bar_area${id}`).getBoundingClientRect().height;
-    let currentLeft = marker.style.left;
-
-    let currentLeftValue = parseInt(currentLeft, 10);
-
-    let newLeftValue = currentLeftValue + 36;
-    marker_count[id] ++;
-    var total = marker_count[id]
-    var worth = newLeftValue/widperc;
-    stocks_owned[id][total] = worth;
-    var org_money = money;
-    money -= (price[id][1] * (get_marker_percent(id) / 100)) + price[id][0];
-    if(money<0)
-    {
-        money=org_money;
-    }
-    var buy_marker = document.createElement("div");
-    buy_marker.id = `buy_marker${id} ${total}`;
-    buy_marker.classList.add("buy");
-    let bestLeftValue = newLeftValue + "px";
-    buy_marker.style.left = bestLeftValue;
-    buy_marker.style.top = ((height + 20) * id) + 10 + "px";
-    bar_area.prepend(buy_marker);
-}
 
 const clamp = (val, min = 0, max = 1) => Math.max(min, Math.min(max, val));
 function stock_algor(vol,bar_id)
@@ -167,6 +131,39 @@ function scheduleRandomExecution(i,minInterval, maxInterval) {
     }, randomInterval);
 }
 
+function buy(id)
+{
+        
+    var bar = document.getElementById(`bar${id}`);
+    var marker = document.getElementById(`marker${id}`);
+    var bar_area = document.getElementById(`bar_area${id}`)
+    const rect = bar.getBoundingClientRect();
+    const width = rect.width;
+    const widperc = width/100;
+    const height = document.getElementById(`bar_area${id}`).getBoundingClientRect().height;
+    let currentLeft = marker.style.left;
+
+    let currentLeftValue = parseInt(currentLeft, 10);
+
+    let newLeftValue = currentLeftValue + 36;
+    marker_count[id] ++;
+    var total = marker_count[id]
+    var worth = newLeftValue/widperc;
+    stocks_owned[id][total] = worth;
+    var org_money = money;
+    money -= (price[id][1] * (get_marker_percent(id) / 100)) + price[id][0];
+    if(money<0)
+    {
+        money=org_money;
+    }
+    var buy_marker = document.createElement("div");
+    buy_marker.id = `buy_marker${id} ${total}`;
+    buy_marker.classList.add("buy");
+    let bestLeftValue = newLeftValue + "px";
+    buy_marker.style.left = bestLeftValue;
+    buy_marker.style.top = ((height + 20) * id) + 10 + "px";
+    bar_area.prepend(buy_marker);
+}
 
 function sell(id) {
     var keys = Object.keys(stocks_owned[id]);
@@ -219,7 +216,7 @@ document.addEventListener("mousemove", function(event) {
     }
 });
 
-// Add auto-buy functionality
+
 function add_auto_buy() {
     auto_buy_count++;
 
@@ -282,11 +279,58 @@ function add_auto_sell() {
 }
 
 
+
 function main_loop()
 {
 
     const money_f = document.getElementById("money");
     money_f.innerHTML = `$ ${money}`;
+
+    for(var i = 1; i<=auto_buy_count; ++i)
+    {
+        var buy_marker = document.getElementById(`buy_marker${i}`);
+        var marker_marker = document.getElementById(`marker${i}`);
+
+        var left_buy = removeSuffix(buy_marker.style.left,"px");
+        var left_marker = removeSuffix(marker_marker.style.left,"px");
+        
+        if(bought_by_auto[i-1] == null)
+        {
+            bought_by_auto[i-1] = 0;
+        }
+
+        console.log(left_buy)
+        console.log(left_marker)
+
+        if(bought_by_auto[i-1] == max_auto_buy) continue;
+
+        if(left_marker < left_buy)
+        {
+            buy(i);
+            bought_by_auto[i-1]++;
+        }
+    }
+    for(var i = 1; i<=auto_sell_count; ++i)
+        {
+            var buy_marker = document.getElementById(`sell_marker${i}`);
+            var marker_marker = document.getElementById(`marker${i}`);
+    
+            var left_buy = removeSuffix(buy_marker.style.left,"px");
+            var left_marker = removeSuffix(marker_marker.style.left,"px");
+            
+            if(bought_by_auto[i-1] == null)
+            {
+                bought_by_auto[i-1] = 0;
+            }
+    
+            if(bought_by_auto[i-1] == 0) continue;
+    
+            if(left_marker > left_buy)
+            {
+                sell(i);
+                bought_by_auto[i-1]--;
+            }
+        }
     setTimeout(main_loop,1);
 
 }
