@@ -1,4 +1,5 @@
 var bar_count = 0
+var bar_price = 1000;
 var money = 500
 var stocks_owned = {}
 var marker_count = {}
@@ -341,5 +342,12 @@ main_loop();
 const money_f = document.getElementById("money")
 money_f.innerHTML = `$ ${money}`
 document.getElementById("new_bar").onclick = function(){
+
+    if(money < bar_price) return;
+    var element_price = document.getElementById("bar_price");
     create_bar();
+    money -= bar_price;
+    bar_price = Math.abs(((bar_price * bar_count) * 0.5) + 1000);
+    element_price.innerHTML = `$${bar_price}`;
+
 };
