@@ -178,6 +178,7 @@ function sell(id) {
     if(!to_remove) return;
     
     to_remove.remove();
+    //TODO Fix selling by getting the difference in percent rather than just the percent, who ever made this is stupid 
     money += (price[id][1] * (get_marker_percent(id) / 100)) + price[id][0];
     delete stocks_owned[id][to_remove_key];
 
