@@ -8,6 +8,9 @@ var auto_sell_count = 0;
 var max_auto_buy = 1
 var bought_by_auto = []
 var price = {}
+var bar_marker_price = {}
+var marker_price = {}
+
 function getRandomArbitrary(min, max) {
     return Math.random() * (max - min) + min;
 }
@@ -42,15 +45,15 @@ function removeSuffix(str, suffix) {
     return str;
   }
 
-function get_marker_percent(bar_id)
+function get_element_perc(element, bar_id)
 {
-    var marker = document.getElementById(`marker${bar_id}`);
+    var marker = document.getElementById(element);
     var bar = document.getElementById(`bar${bar_id}`);
     const rect = bar.getBoundingClientRect();
     const width = rect.width;
     const widperc = width / 100;
     
-    var percent = removeSuffix(marker.style.left,"px") / widperc
+    var percent = (removeSuffix(marker.style.left,"px") - 36) / widperc
 
     return percent
 }
@@ -106,7 +109,7 @@ function stock_algor(vol,bar_id)
 
     var move_by = getRandomInt(1,vol);
 
-    var S = get_marker_percent(bar_id);
+    var S = get_element_perc(`marker${bar_id}`,bar_id);
     var chance_up = 100-S;
     var choice = getRandomInt(1,100);
 
@@ -134,7 +137,7 @@ function scheduleRandomExecution(i,minInterval, maxInterval) {
 
 function buy(id)
 {
-        
+    // TODO fix the price calculations
     var bar = document.getElementById(`bar${id}`);
     var marker = document.getElementById(`marker${id}`);
     var bar_area = document.getElementById(`bar_area${id}`)
@@ -151,12 +154,20 @@ function buy(id)
     var total = marker_count[id]
     var worth = newLeftValue/widperc;
     stocks_owned[id][total] = worth;
-    var org_money = money;
-    money -= (price[id][1] * (get_marker_percent(id) / 100)) + price[id][0];
-    if(money<0)
+
+    var marker_price = get_element_perc(`marker${id}`,id);
+    // var buy_price = get_element_perc(to_remove.id, id)
+
+    var buy_price = stocks_owned[id][total];
+    org_money = money;
+    var sub = ((marker_price / 100 * price[id][1] + price[id][0]) - buy_price)
+    money += sub;
+    if(money < 0)
     {
-        money=org_money;
+        money = org_money;
+        return;
     }
+
     var buy_marker = document.createElement("div");
     buy_marker.id = `buy_marker${id} ${total}`;
     buy_marker.classList.add("buy");
@@ -173,15 +184,25 @@ function sell(id) {
       return Object.keys(object).find(key => object[key] === value);
     };
     var to_remove_key = getKeyByValue(stocks_owned[id], to_remove_value);
-    var to_remove = document.getElementById(`buy_marker${id} ${to_remove_key}`)
+    var to_remove = document.getElementById(`buy_marker${id} ${to_remove_key}`);
 
-    if(!to_remove) return;
     
-    to_remove.remove();
+    if(!to_remove) return;
     //TODO Fix selling by getting the difference in percent rather than just the percent, who ever made this is stupid 
-    money += (price[id][1] * (get_marker_percent(id) / 100)) + price[id][0];
-    delete stocks_owned[id][to_remove_key];
+    var marker_price = get_element_perc(`marker${id}`,id);
+    // var buy_price = get_element_perc(to_remove.id, id)
 
+    var total = marker_count[id]
+    var buy_price = stocks_owned[id][total]
+    var total_gain = ((marker_price / 100 * price[id][1] + price[id][0]) - buy_price)
+    money += total_gain;
+
+    to_remove.remove();
+    delete stocks_owned[id][to_remove_key];
+    
+    console.log("Buy price:" + buy_price)
+    console.log("total_gain:" + total_gain)
+    console.log("marker_price:" + marker_price)
   }
 
 
@@ -300,9 +321,6 @@ function main_loop()
         {
             bought_by_auto[i-1] = 0;
         }
-
-        console.log(left_buy)
-        console.log(left_marker)
 
         if(bought_by_auto[i-1] == max_auto_buy) continue;
 
