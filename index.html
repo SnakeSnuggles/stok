@@ -20,6 +20,7 @@
                     <div class="scroll">
                         <div class="content_div show" style="display: block;" id="Upgrade_cont">
                             <MyHeader1>Upgrades</MyHeader1>
+
                             <div style="display: flex;">
                                 <div id="">
                                     <img src="assets/coloured_marker.png" class=" upgrade_icon no_drag" ondragstart="return false;" alt="">
@@ -27,7 +28,9 @@
                                 
                                 <div style="width: 100%;display: flex;">
                                     <h2>Auto buy upgrade</h2>
-                                    <button onclick="add_auto_buy()" class="upgrade_buy_button">Buy</button>
+                                    <button onclick="add_auto_buy()" class="upgrade_buy_button">Buy
+                                        <p style="margin: 0;padding: 0;" id="auto_buy_price">$250</p>
+                                    </button>
                                 </div>
                             </div>
                             <div style="display: flex;">
@@ -37,7 +40,9 @@
                                 
                                 <div style="width: 100%;display: flex;">
                                     <h2>Auto buy upgrade</h2>
-                                    <button onclick="add_auto_sell()" class="upgrade_buy_button">Buy</button>
+                                    <button onclick="add_auto_sell()" class="upgrade_buy_button">Buy
+                                        <p style="margin: 0;padding: 0;" id="auto_sell_price">$250</p>
+                                    </button>
                                 </div>
                             </div>
                             

@@ -1,15 +1,26 @@
-var bar_count = 0
+/*
+Todo 
+ - fix stock algorithm left side bias
+ - look through the code to find any useless stuff
+*/
+
+var bar_count = 0;
 var bar_price = 1000;
-var money = 500
-var stocks_owned = {}
-var marker_count = {}
+var money = 500;
+var stocks_owned = {};
+var marker_count = {};
 var auto_buy_count = 0;
 var auto_sell_count = 0;
-var max_auto_buy = 1
-var bought_by_auto = []
-var price = {}
-var bar_marker_price = {}
-var marker_price = {}
+var max_auto_buy = 1;
+var bought_by_auto = [];
+var price = {};
+var bar_marker_price = {};
+var marker_price = {};
+
+
+var auto_buy_price = 100 * auto_buy_count + 250;
+var auto_sell_price = 100 * auto_sell_count + 250;
+
 
 function getRandomArbitrary(min, max) {
     return Math.random() * (max - min) + min;
@@ -53,7 +64,7 @@ function get_element_perc(element, bar_id)
     const width = rect.width;
     const widperc = width / 100;
     
-    var percent = (removeSuffix(marker.style.left,"px") - 36) / widperc
+    var percent = (removeSuffix(marker.style.left,"px") - 36) / width
 
     return percent
 }
@@ -100,30 +111,24 @@ function create_bar()
     
 }
 
-
-
 const clamp = (val, min = 0, max = 1) => Math.max(min, Math.min(max, val));
-function stock_algor(vol,bar_id)
-{
+function stock_algor(vol,bar_id) {
+    // Get the percent add it to the output
+    // the lower it is the higher chance it goes up and vice versa
+ 
     var output;
-
     var move_by = getRandomInt(1,vol);
 
-    var S = get_element_perc(`marker${bar_id}`,bar_id);
-    var chance_up = 100-S;
-    var choice = getRandomInt(1,100);
-
-    if(chance_up > choice)
-    {
-        output = S+move_by;
-    }
+    var percent = get_element_perc(`marker${bar_id}`,bar_id) * 100
+    
+    if(move_by + percent < 50)
+        output = percent + move_by  
     else
-    {
-        output = S-move_by;
-    }
-
+        output = percent - move_by  
     output = clamp(output,1,100);
 
+    console.log(percent)
+    console.log(output)
     return output
 }
 function scheduleRandomExecution(i,minInterval, maxInterval) {
@@ -150,23 +155,20 @@ function buy(id)
     let currentLeftValue = parseInt(currentLeft, 10);
 
     let newLeftValue = currentLeftValue + 36;
-    marker_count[id] ++;
-    var total = marker_count[id]
-    var worth = newLeftValue/widperc;
-    stocks_owned[id][total] = worth;
+    marker_count[id]++;
+    total = marker_count[id];
+    
+    var current_price = bar_marker_price[id];
 
-    var marker_price = get_element_perc(`marker${id}`,id);
-    // var buy_price = get_element_perc(to_remove.id, id)
-
-    var buy_price = stocks_owned[id][total];
-    org_money = money;
-    var sub = ((marker_price / 100 * price[id][1] + price[id][0]) - buy_price)
-    money += sub;
+    var org_money = money;
+    money -= current_price;
     if(money < 0)
     {
         money = org_money;
         return;
     }
+
+    stocks_owned[id][marker_count[id]] = current_price; 
 
     var buy_marker = document.createElement("div");
     buy_marker.id = `buy_marker${id} ${total}`;
@@ -189,20 +191,22 @@ function sell(id) {
     
     if(!to_remove) return;
     //TODO Fix selling by getting the difference in percent rather than just the percent, who ever made this is stupid 
-    var marker_price = get_element_perc(`marker${id}`,id);
-    // var buy_price = get_element_perc(to_remove.id, id)
+    // The guy who left this todo is really dumb same with the guy who made this code
+    // var marker_price = get_element_perc(`marker${id}`,id);
+    // // var buy_price = get_element_perc(to_remove.id, id)
 
-    var total = marker_count[id]
-    var buy_price = stocks_owned[id][total]
-    var total_gain = ((marker_price / 100 * price[id][1] + price[id][0]) - buy_price)
-    money += total_gain;
+    // var total = marker_count[id]
+    // var buy_price = stocks_owned[id][total]
+    // var total_gain = ((marker_price / 100 * price[id][1] + price[id][0]) - buy_price)
+    // money += total_gain;
+
+    var gain = stocks_owned[id][to_remove_key] - bar_marker_price[id]; 
+    money += gain
 
     to_remove.remove();
     delete stocks_owned[id][to_remove_key];
     
-    console.log("Buy price:" + buy_price)
-    console.log("total_gain:" + total_gain)
-    console.log("marker_price:" + marker_price)
+
   }
 
 
@@ -239,8 +243,33 @@ document.addEventListener("mousemove", function(event) {
     }
 });
 
+function upgrade_p(upgrade_name)
+{
+    var price = 0
+    if (upgrade_name === "auto_buy")
+    {
+        price = auto_buy_price;
+        if(money - price < 0)
+            return false;
+        money -= price
+        return true;
+    }
+    else if (upgrade_name === "auto_sell")
+    {
+        price = auto_sell_price;
+        if(money - price < 0)
+            return false;
+        money -= price
+        return true;
+    }
+    
+
+}
 
 function add_auto_buy() {
+    if(!upgrade_p("auto_buy"))
+        return
+    
     auto_buy_count++;
 
     if (auto_buy_count > bar_count) {
@@ -270,6 +299,8 @@ function add_auto_buy() {
     });
 }
 function add_auto_sell() {
+    if(!upgrade_p("auto_buy"))
+        return
     auto_sell_count++;
 
     if (auto_sell_count > bar_count) {
@@ -305,9 +336,21 @@ function add_auto_sell() {
 
 function main_loop()
 {
+    var auto_buy_price = 100 * auto_buy_count + 250;
+    var auto_sell_price = 100 * auto_sell_count + 250;
+
+        
+    document.getElementById("auto_buy_price").innerHTML = `$${auto_buy_price}`;
+    document.getElementById("auto_sell_price").innerHTML = `$${auto_sell_price}`;
 
     const money_f = document.getElementById("money");
     money_f.innerHTML = `$ ${money}`;
+
+    for(i = 1; i<=bar_count; i++)
+    {
+        var marker_per = get_element_perc(`marker${i}`,1)
+        bar_marker_price[i] = marker_per * price[i][1] + price[i][0];
+    }
 
     for(var i = 1; i<=auto_buy_count; ++i)
     {
@@ -354,6 +397,10 @@ function main_loop()
     setTimeout(main_loop,1);
 
 }
+
+document.getElementById("auto_sell_price").innerHTML = `$${auto_sell_price}`;
+document.getElementById("auto_buy_price").innerHTML = `$${auto_buy_price}`;
+
 
 create_bar();
 main_loop();
